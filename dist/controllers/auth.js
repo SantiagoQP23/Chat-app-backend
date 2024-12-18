@@ -23,15 +23,15 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const usuario = yield usuario_1.default.findOne({ email });
         if (!usuario) {
             return res.status(400).json({
-                msg: "No se encontro al usuario"
+                msg: "No se encontro al usuario",
             });
         }
-        // Verificar la constraseña 
+        // Verificar la constraseña
         // Comparar con bcrypt
         const validPassword = bcryptjs_1.default.compareSync(password, usuario.password);
         if (!validPassword) {
             return res.status(400).json({
-                msg: "La contraseña es incorrecta"
+                msg: "La contraseña es incorrecta",
             });
         }
         // Generar el JWT
@@ -39,14 +39,14 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(200).json({
             ok: true,
             usuario,
-            token
-            // usuario: user, token 
+            token,
+            // usuario: user, token
         });
     }
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg: "Hable con el administrador"
+            msg: "Hable con el administrador",
         });
     }
 });
@@ -58,29 +58,33 @@ const revalidarToken = (req, res) => __awaiter(void 0, void 0, void 0, function*
     res.status(200).json({
         ok: true,
         usuario,
-        token
+        token,
     });
 });
 exports.revalidarToken = revalidarToken;
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { nombre, email, password } = req.body;
+        console.log(req.body);
         const salt = yield bcryptjs_1.default.genSalt(10);
         const hash = yield bcryptjs_1.default.hash(password, salt);
         const usuario = new usuario_1.default({
-            nombre, email, password: hash
+            nombre,
+            email,
+            password: hash,
         });
         yield usuario.save();
         const token = yield (0, generar_jwt_1.generarJWT)(`${usuario.id}`);
         res.status(201).json({
-            msg: 'El usuario se creo correctamente',
-            usuario, token
+            msg: "El usuario se creo correctamente",
+            usuario,
+            token,
         });
     }
     catch (error) {
         console.log(error);
         res.status(500).json({
-            msg: 'Hable con el administrador'
+            msg: "Hable con el administrador",
         });
     }
 });
@@ -92,7 +96,7 @@ const changePassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const validPassword = bcryptjs_1.default.compareSync(password, usuario.password);
     if (!validPassword) {
         return res.status(400).json({
-            msg: "La contraseña es incorrecta"
+            msg: "La contraseña es incorrecta",
         });
     }
     const salt = yield bcryptjs_1.default.genSalt(10);
@@ -100,7 +104,7 @@ const changePassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
     usuario.password = hash;
     yield usuario.save();
     return res.status(201).json({
-        msg: "La contraseña ha sido cambiada"
+        msg: "La contraseña ha sido cambiada",
     });
 });
 exports.changePassword = changePassword;
@@ -112,13 +116,13 @@ const changeUsername = (req, res) => __awaiter(void 0, void 0, void 0, function*
         usuario.nombre = nombre;
         usuario.save();
         res.status(201).json({
-            msg: 'El nombre se cambió correctamente'
+            msg: "El nombre se cambió correctamente",
         });
     }
     catch (error) {
         console.log(error);
         res.status(500).json({
-            msg: 'No se pudo cambiar el nombre'
+            msg: "No se pudo cambiar el nombre",
         });
     }
 });
@@ -126,28 +130,30 @@ exports.changeUsername = changeUsername;
 const grabarAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { uid } = req;
     try {
-        if (!req.files || Object.keys(req.files).length === 0 || !req.files.imagen) {
+        if (!req.files ||
+            Object.keys(req.files).length === 0 ||
+            !req.files.imagen) {
             res.status(400).json({
-                msg: 'No se subieron archivos'
+                msg: "No se subieron archivos",
             });
         }
         try {
             const usuario = yield usuario_1.default.findById(uid);
             const imagen = req.files.imagen;
             const img = imagen.tempFilePath;
-            const nameImg = usuario.email.split('@')[0];
+            const nameImg = usuario.email.split("@")[0];
             const url = yield (0, fileUpload_1.fileUpload)(img, nameImg);
             usuario.avatar = url;
             yield usuario.save();
             res.status(201).json({
-                msg: 'La imagen se subió correctamente',
+                msg: "La imagen se subió correctamente",
                 url,
             });
         }
         catch (error) {
             console.log(error);
             res.status(500).json({
-                msg: 'Error al subir la imagen'
+                msg: "Error al subir la imagen",
             });
         }
     }
